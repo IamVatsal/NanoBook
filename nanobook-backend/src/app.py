@@ -1,6 +1,8 @@
 import os
 import sys
-import google.generativeai as genai
+# UPDATED: New Import Structure
+from google import genai
+from google.genai import types
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -24,22 +26,28 @@ except Exception:
     print("Error loading QDRANT_URL from environment variables.")
     sys.exit(1)
 
-# --- GEMINI API CONFIGURATION ---
+# --- GEMINI API CLIENT INITIALIZATION ---
 try:
-    # Configure the Gemini API with the key from environment variables
+    # UPDATED: Initialize the Client object
     gemini_api_key = os.getenv("GEMINI_API_KEY")
     if not gemini_api_key:
-        raise ValueError("GEMINI_API_KEY not found in environment variables. Please create a .env file and add it.")
-    genai.configure(api_key=gemini_api_key)
+        raise ValueError("GEMINI_API_KEY not found in environment variables.")
+    
+    # Instantiate the client (stateless usage is preferred in Flask)
+    client = genai.Client(api_key=gemini_api_key)
+    
 except Exception as e:
-    print(f"Error configuring Gemini API: {e}")
+    print(f"Error configuring Gemini Client: {e}")
     sys.exit(1)
-    # You might want to exit or handle this more gracefully
-    # For this example, we'll let it proceed and fail on the API call
 
-VALID_ROLES = {"user", "model", "system"}
+# Valid roles for the conversation history
+VALID_ROLES = {"user", "model"}
 
 def normalize_history(history):
+    """
+    Normalizes history to match the Google GenAI SDK 'Content' format.
+    Format: [{'role': 'user', 'parts': [{'text': '...'}]}, ...]
+    """
     normalized = []
     for item in history:
         role = item.get("role", "").lower()
@@ -48,23 +56,38 @@ def normalize_history(history):
         if role == "assistant":
             role = "model"
 
-        # Skip anything invalid
+        # Filter out system messages from history (they go in config now)
+        # and ensure role is valid
         if role not in VALID_ROLES:
             continue
 
-        normalized.append({
-            "role": role,
-            "parts": item.get("parts") or item.get("content", "")
-        })
+        # Handle 'parts' or 'content' extraction
+        raw_parts = item.get("parts") or item.get("content", "")
+        
+        # Format parts into List[Dict] structure required by new SDK
+        formatted_parts = []
+        if isinstance(raw_parts, str):
+            formatted_parts.append({"text": raw_parts})
+        elif isinstance(raw_parts, list):
+            for part in raw_parts:
+                if isinstance(part, str):
+                    formatted_parts.append({"text": part})
+                elif isinstance(part, dict) and "text" in part:
+                    formatted_parts.append(part)
+        
+        if formatted_parts:
+            normalized.append({
+                "role": role,
+                "parts": formatted_parts
+            })
+            
     return normalized
 
 # --- API ENDPOINT ---
 @app.route('/chat', methods=['POST'])
 def chat_handler():
     """
-    Handles chat requests to the Gemini API with advanced RAG capabilities.
-    Expects a JSON payload with 'user_query' and 'history'.
-    Implements query rewriting and document reranking for better context retrieval.
+    Handles chat requests using the google-genai SDK (v1.0+).
     """
     # 1. Validate incoming data
     if not request.json:
@@ -72,20 +95,17 @@ def chat_handler():
 
     user_query = request.json.get('user_query')
     history = request.json.get('history', [])
-    use_reranking = request.json.get('use_reranking', True)  # Optional parameter
+    use_reranking = request.json.get('use_reranking', True)
 
     if not user_query:
         return jsonify({"error": "Missing 'user_query' in the request."}), 400
     
     try:
-        # 2. Retrieve relevant context with query rewriting and reranking
-        # This now includes:
-        # - Query rewriting for better semantic matching
-        # - Cross-encoder reranking for improved relevance
+        # 2. Retrieve relevant context
         context_doc = query_documents(user_query, k=15, use_reranking=use_reranking)
         
         # 3. Construct the enhanced system prompt
-        system_prompt_parts = """
+        system_prompt = """
             You are NanoBook, a world-class intellectual research assistant. 
             Your goal is to help users synthesize information from their uploaded documents.
     
@@ -98,10 +118,11 @@ def chat_handler():
         """.strip()
 
         # 4. Normalize conversation history
-        history = normalize_history(history)
+        # (This ensures previous turns are correctly formatted for the context window)
+        conversation_history = normalize_history(history)
         
-        # 5. Construct the full query with context and metadata
-        full_query = f"""
+        # 5. Construct the full query (RAG Context + User Question)
+        full_query_text = f"""
         === RETRIEVED CONTEXT ===
         The following context has been retrieved and ranked by relevance to answer the user's question.
         Use this information as the primary source for your response.
@@ -116,30 +137,32 @@ def chat_handler():
         - Answer based primarily on the context above
         - If the context doesn't fully address the question, acknowledge this
         - Maintain conversation continuity with the chat history
-        - Follow all system guidelines for response format and content
         """
 
-        # 6. Call the Gemini API with enhanced configuration
-        model = genai.GenerativeModel(
-            'gemini-2.5-flash-lite',
-            system_instruction=system_prompt_parts,
-            generation_config={
-                "temperature": 0.3,  # Lower temperature for more consistent medical advice
-                "top_p": 0.8,
-                "top_k": 40,
-                "max_output_tokens": 1024,
-            }
+        # Add the current turn to the conversation contents
+        current_turn = {"role": "user", "parts": [{"text": full_query_text}]}
+        contents = conversation_history + [current_turn]
+
+        # 6. Call the Gemini API (UPDATED for google-genai SDK)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash', # Updated to a standard model ID (Adjust to 'gemini-2.0-flash-lite-preview' if specific lite model needed)
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                temperature=0.3,
+                top_p=0.8,
+                top_k=40,
+                max_output_tokens=1024,
+            )
         )
 
-        # 7. Start chat session with history
-        chat_session = model.start_chat(history=history)
-        
-        # 8. Generate response
-        response = chat_session.send_message(full_query)
+        # 7. Extract text from response
+        # The new SDK response object usually has a .text property helper
+        response_text = response.text
 
-        # 9. Return enhanced response with metadata
+        # 8. Return enhanced response with metadata
         return jsonify({
-            "response": response.text,
+            "response": response_text,
             "metadata": {
                 "reranking_used": use_reranking,
                 "context_retrieved": True,
@@ -148,7 +171,6 @@ def chat_handler():
         }), 200
 
     except Exception as e:
-        # Enhanced error handling
         print(f"Error in chat_handler: {e}")
         import traceback
         traceback.print_exc()
@@ -161,7 +183,6 @@ def chat_handler():
 def upload_handler():
     """
     Handles document uploads, saves the file, and ingests it into Qdrant.
-    Expects a file in the 'file' field of the form data.
     """
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request."}), 400
@@ -189,6 +210,7 @@ def upload_handler():
         file.save(file_path)
 
         # Import necessary components for ingestion
+        # Note: These rely on langchain libraries, ensure they are installed
         from langchain_community.document_loaders import (
             TextLoader, PyPDFLoader, Docx2txtLoader, 
             UnstructuredHTMLLoader, CSVLoader, 
@@ -231,9 +253,10 @@ def upload_handler():
         embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
         # Connect to existing Qdrant collection and add documents
-        client = QdrantClient(url=qdrant_url)
-        check_collections = client.get_collections().collections
+        client_qdrant = QdrantClient(url=qdrant_url)
+        check_collections = client_qdrant.get_collections().collections
         collection_names = [c.name for c in check_collections]
+        
         if "data_sources" not in collection_names:
             qdrant = QdrantVectorStore.from_documents(
                 documents=text_chunks,
@@ -243,7 +266,7 @@ def upload_handler():
             )
         else:
             qdrant = QdrantVectorStore(
-                client=client,
+                client=client_qdrant,
                 collection_name="data_sources",
                 embedding=embeddings
             )
@@ -257,7 +280,6 @@ def upload_handler():
         }), 200
 
     except Exception as e:
-        # Clean up the file if ingestion failed
         if os.path.exists(file_path):
             os.remove(file_path)
         
@@ -274,25 +296,22 @@ def reset_handler():
     try:
         from qdrant_client import QdrantClient
 
-        # Connect to Qdrant
-        client = QdrantClient(url=qdrant_url)
+        client_qdrant = QdrantClient(url=qdrant_url)
         
-        # Check if collection exists and delete it
-        check_collections = client.get_collections().collections
+        check_collections = client_qdrant.get_collections().collections
         collection_names = [c.name for c in check_collections]
         if "data_sources" in collection_names:
-            client.delete_collection(collection_name="data_sources")
+            client_qdrant.delete_collection(collection_name="data_sources")
 
-        # Delete all files in data_sources directory
         data_sources_path = os.path.join(os.path.dirname(__file__), '..', 'data_sources')
-        os.makedirs(data_sources_path, exist_ok=True)
-        for filename in os.listdir(data_sources_path):
-            file_path = os.path.join(data_sources_path, filename)
-            try:
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
-            except Exception as e:
-                print(f"Error deleting file {file_path}: {e}")
+        if os.path.exists(data_sources_path):
+            for filename in os.listdir(data_sources_path):
+                file_path = os.path.join(data_sources_path, filename)
+                try:
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                except Exception as e:
+                    print(f"Error deleting file {file_path}: {e}")
 
         return jsonify({
             "message": "Document store has been reset successfully."
@@ -306,8 +325,5 @@ def reset_handler():
             "error": f"Failed to reset document store: {str(e)}"
         }), 500
 
-# --- MAIN EXECUTION ---
 if __name__ == '__main__':
-    # Runs the Flask development server
-    # Use Gunicorn for production deployment
     app.run(host='0.0.0.0', port=5000, debug=True)
