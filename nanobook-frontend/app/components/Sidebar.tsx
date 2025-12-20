@@ -86,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     onChange={onUpload}
                     className="hidden"
                     multiple
-                    accept=".txt,.md,.pdf,.docx,.doc,.csv"
+                    accept=".txt,.md,.pdf,.doc,.docx,.csv,.xlsx, .xls, .ppt, .pptx, .html,.htm, .csv"
                 />
             </div>
 
