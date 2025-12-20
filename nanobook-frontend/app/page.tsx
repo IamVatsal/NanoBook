@@ -4,7 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
 import { Message, Role, Source, MessageHistoryItem } from './Utils/types';
-import { sendChatMessage, uploadDocument, resetSources } from './(services)/api';
+import {
+    sendChatMessage,
+    uploadDocument,
+    resetSources,
+} from './(services)/api';
 
 const STORAGE_KEY_MESSAGES = 'nanobook_messages';
 const STORAGE_KEY_SOURCES = 'nanobook_sources';
@@ -37,8 +41,7 @@ export default function Home() {
         if (savedMessages) setMessages(JSON.parse(savedMessages));
         if (savedSources) setSources(JSON.parse(savedSources));
         if (savedTheme) {
-            const isDark = savedTheme === 'light' ? false : true;
-            setDarkMode(isDark);
+            setDarkMode(savedTheme === 'dark');
         }
     }, []);
 
@@ -71,10 +74,10 @@ export default function Home() {
 
         const currentQuery = inputValue;
         const userMessage: Message = {
-          id: Date.now().toString(),
-          role: Role.USER,
-          content: currentQuery,
-          timestamp: Date.now(),
+            id: Date.now().toString(),
+            role: Role.USER,
+            content: currentQuery,
+            timestamp: Date.now(),
         };
 
         const newMessages = [...messages, userMessage];

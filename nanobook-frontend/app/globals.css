@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
 @import 'tailwindcss';
 
+@theme {
+    --color-electric-blue: oklch(0.61 0.23 248.07);
+}
+
+@variant dark (&:is(.dark *));
+
 :root {
     --background: #ffffff;
     --foreground: #171717;
@@ -11,13 +17,6 @@
     --color-foreground: var(--foreground);
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
 }
 
 body {
