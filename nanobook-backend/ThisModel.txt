@@ -49,13 +49,6 @@ Reranker: Cross-Encoder for relevance scoring
 LLM: Google Gemini for response generation
 Backend: Flask with CORS support
 Lazy Initialization: Efficient resource management
-7. Medical Domain Focus
-Currently contains medical data on:
-
-Dengue
-Influenza
-Malaria
-The system is optimized for precise, analytical medical research assistance with scholarly objectivity.
 
 Workflow
 User submits query → Query rewritten for optimization
