@@ -189,9 +189,7 @@ export default function Home() {
             )
         ) {
             try {
-                await fetch('http://localhost:5000/reset', {
-                    method: 'DELETE',
-                }).catch(() => {});
+                await resetSources();
             } finally {
                 setMessages([]);
                 setSources([]);
