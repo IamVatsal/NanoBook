@@ -39,7 +39,8 @@ An advanced RAG (Retrieval-Augmented Generation) system for intelligent document
 
 ### 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/IamVatsal/NanoBook.git
+cd NanoBook
 cd nanobook-backend
 ```
 
@@ -65,9 +66,9 @@ QDRANT_URL=http://localhost:6333
 
 1. Ingest Initial Documents
 
-    Place your documents in the data_sources directory, then run:
+    Place your documents in the `data_sources` directory, then run:
     
-    ```
+    ```bash
     python src/ingest.py
     ```
     
@@ -80,18 +81,18 @@ QDRANT_URL=http://localhost:6333
 
 2. Start the Flask Server
 
-    ```
+    ```bash
     python src/app.py
     ``` 
-    The API will be available at http://localhost:5000
+    The API will be available at `http://localhost:5000`
 
 3. Test the Query System (Optional)
-    ```
+    ```bash
     python src/query.py
     ```
 
 ## 📚 API Endpoints
-POST /chat
+POST `/chat`
 Query documents and get AI-generated responses.
 
 **Request Body:**
@@ -118,17 +119,17 @@ Query documents and get AI-generated responses.
 ```
 **Parameters:**
 
-- user_query (required): The question to ask
-- history (optional): Previous conversation history
-- use_reranking (optional, default: true): Enable cross-encoder reranking
+- `user_query` (required): The question to ask
+- `history` (optional): Previous conversation history
+- `use_reranking` (optional, default: true): Enable cross-encoder reranking
 
-POST /upload
+POST `/upload`
 
 Upload and ingest a new document into the vector database.
 
 **Request:**
 
-- Form data with file field: file
+- Form data with file field: `file`
 
 **Response:**
 ```json
@@ -141,7 +142,7 @@ Upload and ingest a new document into the vector database.
 ```
 **Supported File Types:**
 
-.txt, .pdf, .doc, .docx, .md, .html, .htm, .csv, .xlsx, .xls, .pptx, .ppt
+`.txt`, `.pdf`, `.doc`, `.docx`, `.md`, `.html`, `.htm`, `.csv`, `.xlsx`, `.xls`, `.pptx`, `.ppt`
 
 **Example with cURL:**
 ```bash
@@ -149,13 +150,20 @@ curl -X POST http://localhost:5000/upload \
   -F "file=@/path/to/document.pdf"
 ```
 
-DELETE /reset
+DELETE `/reset`
 
-Clear all documents from the vector database and data_sources directory.
+Clear all documents from the vector database and `data_sources` directory.
 
 **Response:**
-
+```json
+{
+  "message": "Document store has been reset successfully."
+}
+```
 **Example with cURL:**
+```bash
+curl -X DELETE http://localhost:5000/reset
+```
 
 ## 🏗️ Architecture
 Components
@@ -185,8 +193,8 @@ Markdown-formatted Answer
 Technical Stack
 
 - **Vector Database:** Qdrant (local instance)
-- **Embeddings:** HuggingFace all-MiniLM-L6-v2 (384 dimensions)
-- **Reranker:** Cross-Encoder ms-marco-MiniLM-L-6-v2
+- **Embeddings:** HuggingFace `all-MiniLM-L6-v2` (384 dimensions)
+- **Reranker:** Cross-Encoder `ms-marco-MiniLM-L-6-v2`
 - **LLM:** Google Gemini 2.5 Flash Lite
 - **Backend:** Flask with CORS support
 - **Document Processing:** LangChain + Unstructured
