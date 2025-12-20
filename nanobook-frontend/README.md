@@ -117,7 +117,7 @@ Frontend Installation
 
     Create a .env.local file:
     ```
-    BASE_URL=http://localhost:5000
+    NEXT_PUBLIC_BASE_URL=http://localhost:5000
     ```
 
 
