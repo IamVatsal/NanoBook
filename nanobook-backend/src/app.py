@@ -15,6 +15,15 @@ app = Flask(__name__)
 # Enable Cross-Origin Resource Sharing (CORS) to allow frontend access
 CORS(app)
 
+# --- QDRANT CONFIGURATION ---
+try:
+    qdrant_url = os.getenv("QDRANT_URL")
+    if not qdrant_url:
+        raise ValueError("QDRANT_URL not set in environment variables.")
+except Exception:
+    print("Error loading QDRANT_URL from environment variables.")
+    sys.exit(1)
+
 # --- GEMINI API CONFIGURATION ---
 try:
     # Configure the Gemini API with the key from environment variables
@@ -222,14 +231,14 @@ def upload_handler():
         embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
         # Connect to existing Qdrant collection and add documents
-        client = QdrantClient(url="http://localhost:6333")
+        client = QdrantClient(url=qdrant_url)
         check_collections = client.get_collections().collections
         collection_names = [c.name for c in check_collections]
         if "data_sources" not in collection_names:
             qdrant = QdrantVectorStore.from_documents(
                 documents=text_chunks,
                 embedding=embeddings,
-                url="http://localhost:6333",
+                url=qdrant_url,
                 collection_name="data_sources",
             )
         else:
@@ -266,7 +275,7 @@ def reset_handler():
         from qdrant_client import QdrantClient
 
         # Connect to Qdrant
-        client = QdrantClient(url="http://localhost:6333")
+        client = QdrantClient(url=qdrant_url)
         
         # Check if collection exists and delete it
         check_collections = client.get_collections().collections

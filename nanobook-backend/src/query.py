@@ -1,5 +1,17 @@
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+try:
+    qdrant_url = os.getenv("QDRANT_URL")
+    if not qdrant_url:
+        raise ValueError("QDRANT_URL not set in environment variables.")
+except Exception:
+    print("Error loading QDRANT_URL from environment variables.")
+    exit(1)
 
 # Add parent directory to Python path to import Utils module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -27,7 +39,7 @@ def _get_qdrant_client():
     """Lazy initialization of Qdrant client and vector store"""
     global _client, _qdrant
     if _qdrant is None:
-        _client = QdrantClient(url="http://localhost:6333")
+        _client = QdrantClient(url=qdrant_url)
         
         # Check if collection exists
         collections = _client.get_collections().collections

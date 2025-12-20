@@ -3,6 +3,18 @@ from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+try:
+    qdrant_url = os.getenv("QDRANT_URL")
+    if not qdrant_url:
+        raise ValueError("QDRANT_URL not set in environment variables.")
+except Exception:
+    print("Error loading QDRANT_URL from environment variables.")
+    exit(1)
 
 
 # 1. Load Documents
@@ -33,16 +45,16 @@ try:
     qdrant = QdrantVectorStore.from_documents(
         documents=text_chunks,
         embedding=embeddings,
-        url="http://localhost:6333",
+        url=qdrant_url,
         collection_name="data_sources",
     )
     print("Vector database has been updated successfully!")
 except Exception as e:
     print(f"Error connecting to Qdrant: {e}")
-    print("Make sure Qdrant server is running on http://localhost:6333")
+    print(f"Make sure Qdrant server is running on {qdrant_url}")
 
 try:
-    response = requests.get("http://localhost:6333/health")
+    response = requests.get(f"{qdrant_url}/health")
     if response.status_code == 200:
         print("Qdrant server is running!")
     else:
