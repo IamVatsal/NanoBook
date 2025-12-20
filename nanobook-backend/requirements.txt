@@ -1,0 +1,30 @@
+flask
+google-generativeai
+python-dotenv
+flask-cors
+gunicorn
+langchain
+qdrant-client
+sentence-transformers
+langchain-community
+langchain-huggingface
+langchain-text-splitters
+unstructured
+langchain-qdrant
+
+# Document processing dependencies
+pypdf
+pypdf2
+pdfminer.six
+python-docx
+python-pptx
+openpyxl
+pandas
+markdown
+beautifulsoup4
+lxml
+docx2txt
+
+# RAG enhancement dependencies
+torch
+transformers

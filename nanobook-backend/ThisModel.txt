@@ -1,0 +1,67 @@
+NanoBook RAG System
+This is an advanced medical document RAG (Retrieval-Augmented Generation) system designed for intelligent research assistance. Here's what it's capable of:
+
+Core Capabilities
+1. Advanced Document Retrieval
+Query Rewriting: Automatically rewrites user queries into optimized search terms for better semantic matching
+Semantic Search: Uses all-MiniLM-L6-v2 embeddings for vector similarity search via Qdrant database
+Cross-Encoder Reranking: Employs ms-marco-MiniLM-L-6-v2 to rerank retrieved documents for maximum relevance
+Retrieves 3x documents initially, then reranks to top K most relevant chunks
+2. Multi-Format Document Processing
+Supports ingestion of:
+
+Text files (.txt, .md)
+PDFs (.pdf)
+Word documents (.doc, .docx)
+Excel spreadsheets (.xlsx, .xls)
+PowerPoint presentations (.pptx, .ppt)
+HTML/Web pages (.html, .htm)
+CSV files (.csv)
+3. Intelligent Chunking
+Uses RecursiveCharacterTextSplitter with 500 character chunks
+100 character overlap between chunks to preserve context
+Maintains document metadata for source tracking
+4. Conversational AI Interface
+Model: Google Gemini 2.5 Flash Lite with custom system instructions
+Context-Aware: Maintains chat history and conversation continuity
+Scholarly Tone: Configured as "NanoBook," a world-class intellectual research assistant
+Source Attribution: Clearly indicates when information isn't found in documents
+Temperature 0.3 for consistent responses (important for medical content)
+5. RESTful API Endpoints
+POST /chat - Main query endpoint
+
+Accepts user queries with chat history
+Returns AI-generated responses with retrieved context
+Supports optional reranking toggle
+POST /upload - Dynamic document upload
+
+Real-time document ingestion into vector database
+Validates file types and processes multiple formats
+Automatically chunks and embeds new documents
+DELETE /reset - Collection reset
+
+Clears all documents from Qdrant
+Resets the document store for fresh start
+6. Technical Architecture
+Vector Database: Qdrant (local instance on port 6333)
+Embeddings: HuggingFace all-MiniLM-L6-v2 (384 dimensions)
+Reranker: Cross-Encoder for relevance scoring
+LLM: Google Gemini for response generation
+Backend: Flask with CORS support
+Lazy Initialization: Efficient resource management
+7. Medical Domain Focus
+Currently contains medical data on:
+
+Dengue
+Influenza
+Malaria
+The system is optimized for precise, analytical medical research assistance with scholarly objectivity.
+
+Workflow
+User submits query → Query rewritten for optimization
+Semantic search retrieves candidate documents (45 initially if k=15)
+Cross-encoder reranks top 15 most relevant
+Context injected into Gemini prompt
+AI generates response grounded in retrieved documents
+Returns markdown-formatted, source-aware answer
+This is a production-ready, advanced RAG system with state-of-the-art retrieval techniques combining dense retrieval and neural reranking.
