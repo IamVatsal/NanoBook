@@ -28,13 +28,42 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-electric-blue rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                        <div className="w-10 h-10 bg-electric-blue rounded-md flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
                             <svg
-                                className="w-6 h-6"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
+                                width="800px"
+                                height="800px"
+                                viewBox="-4.5 -3.7 32 32"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
                             >
-                                <path d="M13.5,0.67l-2.43,2.43c-0.2,0.2-0.2,0.51,0,0.71l0.35,0.35c0.2,0.2,0.51,0.2,0.71,0l1.24-1.24V14.5c0,0.28,0.22,0.5,0.5,0.5s0.5-0.22,0.5-0.5V2.91l1.24,1.24c0.2,0.2,0.51,0.2,0.71,0l0.35-0.35c0.2-0.2,0.2-0.51,0-0.71L14.21,0.67C14.01,0.47,13.7,0.47,13.5,0.67z M18.5,13.5h-1c-0.28,0-0.5,0.22-0.5,0.5v2c0,1.1-0.9,2-2,2H5c-1.1,0-2-0.9-2-2v-2c0-0.28-0.22-0.5-0.5-0.5h-1c-0.28,0-0.5,0.22-0.5,0.5v2c0,2.21,1.79,4,4,4h10c2.21,0,4-1.79,4-4v-2C19,13.72,18.78,13.5,18.5,13.5z" />
+                                <path
+                                    d="M21 16C21 18.8284 21 20.2426 20.1213 21.1213C19.2426 22 17.8284 22 15 22H9C6.17157 22 4.75736 22 3.87868 21.1213C3 20.2426 3 18.8284 3 16V8C3 5.17157 3 3.75736 3.87868 2.87868C4.75736 2 6.17157 2 9 2H15C17.8284 2 19.2426 2 20.1213 2.87868C21 3.75736 21 5.17157 21 8V12"
+                                    className='stroke-[#1D293D] dark:stroke-slate-100 stroke-[1.5] stroke-linecap="round"'
+                                />
+                                <path
+                                    d="M8 2V6M8 22V10"
+                                    className='stroke-[#1D293D] dark:stroke-slate-100 stroke-[1.5] stroke-linecap="round"'
+                                />
+                                <path
+                                    d="M2 12H4"
+                                    className='stroke-[#1D293D] dark:stroke-slate-100 stroke-[1.5] stroke-linecap="round"'
+                                />
+                                <path
+                                    d="M2 16H4"
+                                    className='stroke-[#1D293D] dark:stroke-slate-100 stroke-[1.5] stroke-linecap="round"'
+                                />
+                                <path
+                                    d="M2 8H4"
+                                    className='stroke-[#1D293D] dark:stroke-slate-100 stroke-[1.5] stroke-linecap="round"'
+                                />
+                                <path
+                                    d="M11.5 6.5H16.5"
+                                    className='stroke-[#1D293D] dark:stroke-slate-100 stroke-[1.5] stroke-linecap="round"'
+                                />
+                                <path
+                                    d="M11.5 10H16.5"
+                                    className='stroke-[#1D293D] dark:stroke-slate-100 stroke-[1.5] stroke-linecap="round"'
+                                />
                             </svg>
                         </div>
                         <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">
