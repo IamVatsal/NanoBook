@@ -44,3 +44,42 @@ body {
 .dark ::-webkit-scrollbar-thumb {
     background: #475569;
 }
+
+/* Markdown content tweaks: reduce excessive paragraph spacing */
+.markdown-content p {
+    margin-top: 0.125rem; /* ~2px */
+    margin-bottom: 0.125rem; /* ~2px */
+}
+
+/* Optional: tighten lists slightly without losing readability */
+.markdown-content ul,
+.markdown-content ol {
+    margin-top: 0.125rem;
+    margin-bottom: 0.125rem;
+    padding-left: 1.25rem; /* ensure bullets are aligned */
+}
+
+/* Optional: avoid large gaps after headings inside bubbles */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Reduce spacing inside list items when markdown wraps text in <p> */
+.markdown-content li {
+    margin-bottom: 0.125rem;
+}
+.markdown-content li > p {
+    margin-top: 0.125rem;
+    margin-bottom: 0.125rem;
+}
+
+/* Slightly tighter default line height inside bubbles */
+.markdown-content {
+    line-height: 1;
+}
