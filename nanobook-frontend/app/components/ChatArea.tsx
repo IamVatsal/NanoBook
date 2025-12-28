@@ -158,7 +158,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
             <div className="p-4 md:p-8 absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
                 <div className="max-w-3xl mx-auto w-full pointer-events-auto">
                     <div className="relative group">
-                        <div className="relative flex items-end bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 md:p-2 pr-3 md:pr-4 shadow-xl ring-1 ring-black/5">
+                        <div className="relative flex items-end bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 md:p-2 pr-3 md:pr-4 shadow-xl ring-1 ring-black/5 focus-within:border-blue-400 dark:focus-within:border-blue-500 transition-colors">
                             <button
                                 onClick={onUploadClick}
                                 className="p-2 md:p-3 text-slate-400 hover:text-blue-500 transition-colors self-end mb-1"
@@ -184,7 +184,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
                                 onKeyDown={handleKeyPress}
                                 placeholder="Analyze documents..."
                                 rows={1}
-                                className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-100 py-2 md:py-3 px-2 md:px-4 max-h-48 overflow-y-auto resize-none scrollbar-hide text-base"
+                                className="flex-1 bg-transparent border-none text-slate-800 dark:text-slate-100 py-2 md:py-3 px-2 md:px-4 max-h-48 overflow-y-auto resize-none scrollbar-hide text-base focus:outline-none"
                                 style={{ height: 'auto', minHeight: '44px' }}
                             />
                             <button
