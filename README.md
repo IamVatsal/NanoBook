@@ -3,6 +3,13 @@
 NanoBook is a full‑stack, retrieval‑augmented research assistant. It combines a **Next.js + React** frontend with a **Flask + Qdrant + Gemini** backend to analyze and synthesize information from user‑uploaded documents.
 
 ---
+## Screen Recording
+
+
+https://github.com/user-attachments/assets/3790e9f5-82bd-456b-825e-0c2776858266
+
+
+---
 
 ## 📁 Repository Structure
 
